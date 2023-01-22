@@ -5,11 +5,10 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract NFTMamaMarketplace {
     address public owner;
+   uint public idForSale; 
+// satılacak NFT'lerin bilgilerini buraya girmek için yeni bir veri tipi yaratmak istediğimden dolayı struct yapısı ile bunu yapıyorum
+    struct ItemForSale {     
 
-    uint public idForSale;
-    // satılacak NFT'lerin bilgilerini buraya girmek için yeni bir veri tipi yaratmak istediğimden dolayı struct yapısı ile bunu yapıyorum
-
-    struct ItemForSale {
         address contractAddress;
         address seller;
         address buyer;
@@ -18,15 +17,15 @@ contract NFTMamaMarketplace {
         bool state;
     }
 
-    // Hangi NFT'ler satışta olduğunu göstermek için mapping yapısını kullanıyorum
-
-    mapping(uint => ItemForSale) public IdToItemForSale;
+    
+// Hangi NFT'ler satışta olduğunu göstermek için mapping yapısını kullanıyorum
+    mapping(uint => ItemForSale) public IdToItemForSale; 
 
     constructor(){
         owner = msg.sender;
     
     }
-
+// NFT SATIŞI BAŞLATMA FONKSİYONU
     function startNFTSale(address _contractAddress, uint price, uint _tokenId) public {
         IERC721 NFT = IERC721(_contractAddress);
         require(NFT.ownerOf(_tokenId) == msg.sender, "Bu NFT size ait degil!!");
@@ -34,6 +33,7 @@ contract NFTMamaMarketplace {
         IdToItemForSale[idForSale] = ItemForSale(_contractAddress, msg.sender, msg.sender, price, _tokenId, false);
         idForSale += 1;
     } 
+// SATIŞA ÇIKARTILAN NFT'lerin SATIŞTAN ÇIKARILMASINI SAĞLAMA FONKSİYONU
     function cancelNFTSale(uint Id) public {
         ItemForSale memory info = IdToItemForSale[Id];
         IERC721 NFT = IERC721(info.contractAddress);
@@ -45,7 +45,7 @@ contract NFTMamaMarketplace {
 
 
     }
-
+// SATIŞA ÇIKARILAN NFT'lerin ALIMINI SAĞLAYAN FONKSİYON
     function buyNFT(uint Id) public payable {
         ItemForSale storage info = IdToItemForSale[Id];
         require(Id < idForSale);
@@ -65,3 +65,4 @@ contract NFTMamaMarketplace {
 
     }
 }
+
